@@ -1,6 +1,6 @@
 library(gridExtra)
 library(tidyverse)
-library(ggpubr)
+library(patchwork)
 library(sf)
 import::from(ggthemes, colorblind_pal)
 options(
@@ -10,6 +10,8 @@ options(
   dplyr.summarise.inform = FALSE
 )
 
+dir.create("plots", showWarnings = F)
+
 droughts <- read_csv("data/droughts/wsh_p40_droughts.csv")
 wh_droughts <- read_csv("data/droughts/wh_p40_droughts.csv")
 sh_droughts <- read_csv("data/droughts/sh_p40_droughts.csv")
@@ -18,23 +20,7 @@ wind_droughts <- read_csv("data/droughts/wind_p40_droughts.csv")
 solar_droughts <- read_csv("data/droughts/solar_p40_droughts.csv")
 hydro_droughts <- read_csv("data/droughts/hydro_p40_droughts.csv")
 
-hydro <- read_csv("data/godeeep-hydro-monthly.csv") |>
-  rename(hydro_mwh = power_predicted_mwh) |>
-  mutate(
-    hydro_mwh = ifelse(hydro_mwh < 0, 0, hydro_mwh),
-    hydro_mwh = ifelse(hydro_mwh > nameplate * n_hours, nameplate * n_hours, hydro_mwh),
-    month = month(datetime),
-    year = year(datetime)
-  ) |>
-  group_by(ba, year, month) |>
-  summarise(
-    hydro_gen_mwh = sum(hydro_mwh),
-    hydro_capacity = sum(nameplate),
-    hours_in_month = n_hours[1],
-    hydro_num_sites = length(unique(eia_id)),
-    .groups = "drop"
-  ) |>
-  mutate(hydro_cf = hydro_gen_mwh / hydro_capacity / hours_in_month)
+hydro <- read_csv("data/ba_hydro_1982_2019.csv")
 wind_solar <- read_csv("data/ba_solar_wind_load_monthly_1980_2019.csv")
 
 hydro_wind_solar <- hydro |>

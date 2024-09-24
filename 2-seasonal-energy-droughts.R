@@ -10,6 +10,7 @@ source("lib.R")
 timezone <- "US/Pacific"
 
 drought_path <- "data/droughts/"
+dir.create(drought_path, showWarnings = FALSE)
 
 periods <- c(
   "monthly" = 1
@@ -19,23 +20,26 @@ lower_thresh <- c(
 )
 upper_thresh <- 1 - lower_thresh
 
-hydro <- read_csv("data/godeeep-hydro-monthly.csv") |>
+hydro <- read_csv("data/godeeep-hydro-historical-monthly.csv") |>
   rename(hydro_mwh = power_predicted_mwh) |>
+  left_join(read_csv("data/godeeep-hydro-plants.csv"), by = join_by(eia_id, plant)) |>
   mutate(
+    # do some basic qaqc of the hydropower data
     hydro_mwh = ifelse(hydro_mwh < 0, 0, hydro_mwh),
-    hydro_mwh = ifelse(hydro_mwh > nameplate * n_hours, nameplate * n_hours, hydro_mwh),
+    hydro_mwh = ifelse(hydro_mwh > nameplate_capacity * n_hours, nameplate_capacity * n_hours, hydro_mwh),
     month = month(datetime),
     year = year(datetime)
   ) |>
   group_by(ba, year, month) |>
   summarise(
     hydro_gen_mwh = sum(hydro_mwh),
-    hydro_capacity = sum(nameplate),
+    hydro_capacity = sum(nameplate_capacity),
     hours_in_month = n_hours[1],
     hydro_num_sites = length(unique(eia_id)),
     .groups = "drop"
   ) |>
   mutate(hydro_cf = hydro_gen_mwh / hydro_capacity / hours_in_month)
+hydro |> write_csv("data/ba_hydro_1982_2019.csv")
 wind_solar <- read_csv("data/ba_solar_wind_load_monthly_1980_2019.csv")
 
 hydro_bas <- hydro |>

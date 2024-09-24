@@ -6,30 +6,33 @@ options(
   pillar.width = 1000
 )
 
-# import::from(sf, read_sf, st_transform, st_as_sf, st_intersects)
-# import::from(jsonlite, read_json)
-# import::from(data.table, melt.data.table, as.data.table, setnames, merge.data.table, setkey)
-# import::from(ggthemes, colorblind_pal)
-
-# source("lib.R")
+tgw_gen_path <- "/Volumes/data/"
 
 min_sites_per_ba <- 5
 start_year <- 1980
 
 # metadata
 message("Reading metadata")
-wind_config <- read_csv("/Volumes/data/tgw-gen-historical/wind/eia_wind_configs.csv")
-solar_config <- read_csv("/Volumes/data/tgw-gen-historical/solar/eia_solar_configs.csv")
+wind_config <- "%s/tgw-gen-historical/wind/eia_wind_configs.csv" |>
+  sprintf(tgw_gen_path) |>
+  read_csv()
+solar_config <- "%s/tgw-gen-historical/solar/eia_solar_configs.csv" |>
+  sprintf(tgw_gen_path) |>
+  read_csv()
 
 
 # generation data
-solar_list <- "/Volumes/data/tgw-gen-historical/solar/historical" |>
+message("Reading wind and solar gen data")
+solar_list <- "%s/tgw-gen-historical/solar/historical" |>
+  sprintf(tgw_gen_path) |>
   list.files("*.csv", full.names = TRUE) |>
   map(read_csv, .progress = TRUE)
-wind_list <- "/Volumes/data/tgw-gen-historical/wind/historical" |>
+wind_list <- "%s/tgw-gen-historical/wind/historical" |>
+  sprintf(tgw_gen_path) |>
   list.files("*.csv", full.names = TRUE) |>
   map(read_csv, .progress = TRUE)
 
+message("Cleaning data")
 # add back in the last day of the year in leap days, just duplicate the day before
 solar_years <- sapply(solar_list, function(x) {
   year(x$datetime[1])
