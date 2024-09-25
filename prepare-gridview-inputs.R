@@ -143,10 +143,10 @@ for (i in 1:5) {
       mutate(
         value = ifelse(is.na(wind_drought_cf),
           value, ifelse(wind_drought_cf < wind_cf_monthly,
-            wind_cf_monthly / wind_drought_cf * value, value
+            wind_drought_cf / wind_cf_monthly * value, value
           )
         ),
-        reduction = wind_cf_monthly / wind_drought_cf
+        reduction = wind_drought_cf / wind_cf_monthly
       )
     wind_list[[bai]] <- wind_ba_adjusted #|> select(Index, name, value)
 
@@ -167,10 +167,10 @@ for (i in 1:5) {
       mutate(
         value = ifelse(is.na(solar_drought_cf),
           value, ifelse(solar_drought_cf < solar_cf_monthly,
-            solar_cf_monthly / solar_drought_cf * value, value
+            solar_drought_cf / solar_cf_monthly * value, value
           )
         ),
-        reduction = solar_cf_monthly / solar_drought_cf
+        reduction = solar_drought_cf / solar_cf_monthly
       )
     solar_list[[bai]] <- solar_ba_adjusted #|> select(Index, name, value)
 
@@ -192,10 +192,10 @@ for (i in 1:5) {
       mutate(
         value = ifelse(is.na(solar_drought_cf),
           value, ifelse(solar_drought_cf < rooftop_solar_cf_monthly,
-            rooftop_solar_cf_monthly / solar_drought_cf * value, value
+            solar_drought_cf / rooftop_solar_cf_monthly * value, value
           )
         ),
-        reduction = rooftop_solar_cf_monthly / solar_drought_cf
+        reduction = solar_drought_cf / rooftop_solar_cf_monthly
       )
     rooftop_solar_list[[bai]] <- rooftop_solar_ba_adjusted #|> select(Index, name, value)
 
@@ -215,14 +215,14 @@ for (i in 1:5) {
       mutate(
         value = ifelse(is.na(hydro_drought_cf),
           value, ifelse(hydro_drought_cf < hydro_cf,
-            hydro_cf / hydro_drought_cf * value, value
+            hydro_drought_cf / hydro_cf * value, value
           )
         ),
-        reduction = hydro_cf / hydro_drought_cf
+        reduction = hydro_drought_cf / hydro_cf
       )
     hydro_list[[bai]] <- hydro_ba_adjusted #|> select(-hydro_cf, -hydro_drought_cf)
   }
-  stop()
+  # stop()
   message("Writing GridView files")
 
   # combine the adjusted and non-adjusted data
@@ -238,6 +238,31 @@ for (i in 1:5) {
   hydro_adjusted <- bind_rows(hydro_list) |>
     bind_rows(hydro_schedule |> filter(!(ba %in% drought_events_ba$ba))) |>
     select(`Generator Name`, DataTypeName, DatatypeID, Year, PatternName, month_name, value)
+
+  # combine the reduction factors to check
+  wind_reduction <- bind_rows(wind_list) |>
+    bind_rows(wind |> filter(!(ba %in% drought_events_ba$ba))) |>
+    distinct(ba, month, reduction) |>
+    na.omit() |>
+    mutate(resource = "wind", event = i)
+  solar_reduction <- bind_rows(solar_list) |>
+    bind_rows(solar |> filter(!(ba %in% drought_events_ba$ba))) |>
+    distinct(ba, month, reduction) |>
+    na.omit() |>
+    mutate(resource = "solar", event = i)
+  rooftop_solar_reduction <- bind_rows(rooftop_solar_list) |>
+    bind_rows(rooftop_solar |> filter(!(ba %in% drought_events_ba$ba))) |>
+    distinct(ba, month, reduction) |>
+    na.omit() |>
+    mutate(resource = "rooftop", event = i)
+  hydro_reduction <- bind_rows(hydro_list) |>
+    bind_rows(hydro_schedule |> filter(!(ba %in% drought_events_ba$ba))) |>
+    distinct(ba, month, reduction) |>
+    na.omit() |>
+    mutate(resource = "hydro", event = i)
+
+  reduction <- bind_rows(wind_reduction, solar_reduction, rooftop_solar_reduction, hydro_reduction)
+
 
   event_dir <- file.path(output_dir, paste0("event", i))
   dir.create(event_dir, showWarnings = F)
