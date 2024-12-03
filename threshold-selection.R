@@ -33,7 +33,7 @@ p_num_droughts <- drought_count |>
   # scale_fill_viridis_d(option = "G")
   scale_fill_manual(values = colorblind_pal()(6)[-1])
 p_num_droughts
-ggsave("plots/num_droughts.pdf", width = 5, height = 3)
+ggsave("figures/num_droughts.pdf", width = 5, height = 3)
 
 drought_count |>
   group_by(threshold) |>

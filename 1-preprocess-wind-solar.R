@@ -207,7 +207,7 @@ for (bai in bas) {
   }
 
   # each BA has either wind, solar or both
-  solar_wind_load_ba_ave_list[[bai]] <-
+  solar_wind_ba_ave_list[[bai]] <-
     if (no_wind) {
       solar_ba_ave
     } else if (no_solar) {
@@ -217,6 +217,6 @@ for (bai in bas) {
         inner_join(wind_ba_ave, by = join_by(year, month, ba, hours_in_month))
     }
 }
-solar_wind_load_ba_ave <- bind_rows(solar_wind_load_ba_ave_list)
+solar_wind_ba_ave <- bind_rows(solar_wind_load_ba_ave_list)
 
-solar_wind_load_ba_ave |> write_csv("data/ba_solar_wind_load_monthly_1980_2019.csv")
+solar_wind_ba_ave |> write_csv("data/ba-solar-wind-monthly-1980-2019.csv")

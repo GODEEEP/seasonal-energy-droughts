@@ -6,16 +6,18 @@ options(
   dplyr.summarise.inform = FALSE
 )
 
-# event 1 - 11, 12
-# event 2 - 11
-# event 3 - 2
-# event 4 - 12
-# event 5 - 12
+# event 1 - 1985 11, 12
+# event 2 - 1986 11
+# event 3 - 2000 2
+# event 4 - 2001 12
+# event 5 - 2019 12
 
 # pcm_input <- "data/GODEEEP_35"
 pcm_input <- "data/ADS_2032"
 
-output_dir <- "data/gridview_inputs_wecc_seasonal_drought_events"
+output_dir <- "data/gridview-inputs-wecc-seasonal-drought-events"
+
+dir.create(output_dir, showWarnings = FALSE)
 
 wind_solar_plants <- read_csv("data/HourlyResource_General.csv", skip = 2) |>
   left_join(read_csv("data/GeneratorList.csv", skip = 2), by = join_by(GeneratorKey)) |>

@@ -7,5 +7,6 @@
 5. Unpack the hydropower data and copy the files `godeeep-hydro-historical-monthly.csv` and `godeeep-hydro-plants.csv` into the `data/` directory, the remaining data is not needed. 
 6. Run `2-seasonal-energy-droughts.R` to identify droughts and create the drought data files. The threshold for drought selection can be changed at the top of the file. 
 7. Run the script/notebooks `3a`, `3b`, `3c`, `3d` to create figures for the paper. 
+8. 
 8. (optional) run `threshold-selection.R` to explore the choice of threshold.
 9. (optional) run `prepare-gridview-inputs.R` to create input files for the GridView model used for the case study in the paper. 

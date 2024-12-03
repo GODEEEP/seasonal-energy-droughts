@@ -39,8 +39,8 @@ hydro <- read_csv("data/godeeep-hydro-historical-monthly.csv") |>
     .groups = "drop"
   ) |>
   mutate(hydro_cf = hydro_gen_mwh / hydro_capacity / hours_in_month)
-hydro |> write_csv("data/ba_hydro_1982_2019.csv")
-wind_solar <- read_csv("data/ba_solar_wind_load_monthly_1980_2019.csv")
+hydro |> write_csv("data/ba-hydro-1982-2019.csv")
+wind_solar <- read_csv("data/ba-solar-wind-monthly-1980-2019.csv")
 
 hydro_bas <- hydro |>
   pull(ba) |>
@@ -63,6 +63,8 @@ hydro_wind_solar <- hydro |>
     datetime_utc = ISOdate(year, month, 1, 0, 0),
     datetime_local = datetime_utc
   )
+# save the combined output
+hydro_wind_solar |> write_csv("data/ba-solar-wind-hydro-monthly-1982-2019.csv")
 
 i <- 1
 #
