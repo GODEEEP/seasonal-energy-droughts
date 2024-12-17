@@ -1,7 +1,8 @@
 import pandas as pd
 
 for e in range(6):
-    h5_file = f'/Volumes/data/seasonal-energy-drought-data/case-study/'
+    print(f'Event {e}')
+    h5_file = f'/Volumes/data/seasonal-energy-drought-data/case-study/gridview-output/Event{e}.h5'
 
     load_shed = pd.read_hdf(h5_file, key="/area/UNSERVED_LOAD")
 
@@ -15,7 +16,7 @@ for e in range(6):
     curtailment = pd.read_hdf(h5_file, key="/generator/PRICE_MARKUP_RATIO")
     CO2 = pd.read_hdf(h5_file, key="area/CO2_AMOUNT")
 
-    tech_map = pd.read_csv('data/pcm_tech_map.csv')
+    # tech_map = pd.read_csv('data/pcm_tech_map.csv')
 
     bus = pd.read_hdf(h5_file, key="/mdb/Generator").set_index("GeneratorName")
     subtype = bus['SubType']
