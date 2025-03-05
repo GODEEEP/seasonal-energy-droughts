@@ -103,7 +103,7 @@ bas <- plant_counts$ba
 
 chunk_size <- 100
 
-solar_wind_load_ba_ave_list <- list()
+solar_wind_ba_ave_list <- list()
 for (bai in bas) {
   message("\t", bai)
 
@@ -217,6 +217,6 @@ for (bai in bas) {
         inner_join(wind_ba_ave, by = join_by(year, month, ba, hours_in_month))
     }
 }
-solar_wind_ba_ave <- bind_rows(solar_wind_load_ba_ave_list)
+solar_wind_ba_ave <- bind_rows(solar_wind_ba_ave_list)
 
 solar_wind_ba_ave |> write_csv("data/ba-solar-wind-monthly-1980-2019.csv")

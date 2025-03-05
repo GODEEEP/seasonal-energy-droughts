@@ -12,6 +12,8 @@ options(
 
 dir.create("plots", showWarnings = F)
 
+small_bas <- c("WACM", "SRP", "SPA", "PGE", "PACW", "LDWP", "AVA", "AECI")
+
 droughts <- read_csv("data/droughts/wsh_p40_droughts.csv")
 wh_droughts <- read_csv("data/droughts/wh_p40_droughts.csv")
 sh_droughts <- read_csv("data/droughts/sh_p40_droughts.csv")
@@ -20,8 +22,8 @@ wind_droughts <- read_csv("data/droughts/wind_p40_droughts.csv")
 solar_droughts <- read_csv("data/droughts/solar_p40_droughts.csv")
 hydro_droughts <- read_csv("data/droughts/hydro_p40_droughts.csv")
 
-hydro <- read_csv("data/ba_hydro_1982_2019.csv")
-wind_solar <- read_csv("data/ba_solar_wind_load_monthly_1980_2019.csv")
+hydro <- read_csv("data/ba-hydro-1982-2019.csv")
+wind_solar <- read_csv("data/ba-solar-wind-monthly-1980-2019.csv")
 
 hydro_wind_solar <- hydro |>
   inner_join(wind_solar, by = join_by(ba, year, month, hours_in_month)) |>
@@ -29,7 +31,8 @@ hydro_wind_solar <- hydro |>
   mutate(
     datetime_utc = ISOdate(year, month, 1, 0, 0),
     datetime_local = datetime_utc
-  )
+  ) |>
+  filter(!(ba %in% small_bas))
 
 expand_droughts <- function(x) {
   x |>
@@ -56,7 +59,9 @@ droughts_all <- bind_rows(
   expand_droughts(wind_droughts) |> mutate(drought_type = "w"),
   expand_droughts(solar_droughts) |> mutate(drought_type = "s")
 ) |>
-  mutate(drought_type = factor(drought_type, levels = c("w", "s", "ws", "sh", "wh", "wsh")))
+  mutate(drought_type = factor(drought_type, levels = c("w", "s", "ws", "sh", "wh", "wsh"))) |>
+  filter(!(ba % in% small_bas))
+
 
 
 # drought duration seasonality
@@ -87,7 +92,7 @@ p_freq_dur <- droughts_all |>
   ) +
   guides(fill = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1)) +
   scale_fill_manual("Compound Drought Duration (months)", values = colorblind_pal()(8)[-1][1:5]) +
-  labs(x = "Month", y = "Number of VRE Drought Events")
+  labs(x = "Month", y = "Number of VRE Drought Events per Year")
 p_freq_dur
 
 # seasonality_conus <- hydro_wind_solar |>
